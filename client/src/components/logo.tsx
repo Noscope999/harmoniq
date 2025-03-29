@@ -41,28 +41,28 @@ export default function Logo({ size = 'medium', showText = false, className = ''
         >
           {/* Left chat bubble */}
           <path
-            d="M20 45C20 32.85 29.85 23 42 23H45C57.15 23 67 32.85 67 45C67 57.15 57.15 67 45 67H35L25 77V67C22.24 67 20 64.76 20 62V45Z"
+            d="M15 45C15 32.85 24.85 23 37 23H40C50 23 58.5 30 60.5 40C60.5 40 60.5 40 60.5 40C60.5 52.15 50.65 62 38.5 62H30L20 72V62C17.24 62 15 59.76 15 57V45Z"
             fill="currentColor"
             className="text-primary"
             stroke="#1D2326"
-            strokeWidth="4"
+            strokeWidth="3"
           />
           
           {/* Right chat bubble */}
           <path
-            d="M33 45C33 32.85 42.85 23 55 23H58C70.15 23 80 32.85 80 45C80 57.15 70.15 67 58 67H48L38 77V67C35.24 67 33 64.76 33 62V45Z"
+            d="M85 45C85 32.85 75.15 23 63 23H60C50 23 41.5 30 39.5 40C39.5 40 39.5 40 39.5 40C39.5 52.15 49.35 62 61.5 62H70L80 72V62C82.76 62 85 59.76 85 57V45Z"
             fill="currentColor"
             className="text-primary"
             stroke="#1D2326"
-            strokeWidth="4"
+            strokeWidth="3"
           />
           
-          {/* Middle section with lines */}
-          <circle cx="50" cy="45" r="10" fill="#1D2326" />
-          <rect x="40" y="42" width="20" height="2" rx="1" fill="white" />
-          <rect x="40" y="46" width="20" height="2" rx="1" fill="white" />
-          <rect x="40" y="38" width="20" height="2" rx="1" fill="white" />
-          <rect x="40" y="50" width="20" height="2" rx="1" fill="white" />
+          {/* Intersection section in the middle */}
+          <circle cx="50" cy="40" r="12" fill="#1D2326" />
+          <rect x="38" y="37" width="24" height="2" rx="1" fill="white" />
+          <rect x="38" y="41" width="24" height="2" rx="1" fill="white" />
+          <rect x="38" y="33" width="24" height="2" rx="1" fill="white" />
+          <rect x="38" y="45" width="24" height="2" rx="1" fill="white" />
         </svg>
       </div>
       
