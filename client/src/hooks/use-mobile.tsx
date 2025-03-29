@@ -1,19 +1,39 @@
-import * as React from "react"
+import { useState, useEffect } from "react";
+import { isNativePlatform } from "@/lib/capacitor";
 
-const MOBILE_BREAKPOINT = 768
-
+/**
+ * Hook to detect if the current device is a mobile device
+ * Returns true for both native mobile apps and mobile web browsers
+ */
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+  useEffect(() => {
+    // Check if running in a Capacitor native app
+    if (isNativePlatform()) {
+      setIsMobile(true);
+      return;
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    
+    // For web browsers, check screen size and user agent
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|windows phone/i;
+      const isMobileDevice = mobileRegex.test(userAgent);
+      const isSmallScreen = window.innerWidth < 768;
+      
+      setIsMobile(isMobileDevice || isSmallScreen);
+    };
 
-  return !!isMobile
+    // Initial check
+    checkMobile();
+    
+    // Add listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
 }

@@ -9,5 +9,47 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    /* Prevent iOS text size adjustment */
+    -webkit-text-size-adjust: 100%;
+    /* Remove default tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent user selecting text unless explicitly allowed */
+    user-select: none;
+    /* Disable pull-to-refresh behavior */
+    overscroll-behavior: none;
+  }
+
+  /* Add safe area insets for iOS */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  /* Make selectable where needed */
+  .selectable {
+    user-select: text;
+  }
+  
+  /* Android specific adjustments */
+  .android {
+    /* Android-specific overrides can be placed here */
+  }
+  
+  /* iOS specific adjustments */
+  .ios {
+    /* iOS-specific overrides can be placed here */
+  }
+
+  /* Hide scrollbars but keep functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

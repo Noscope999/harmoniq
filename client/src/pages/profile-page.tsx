@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Loader2, ArrowLeft, AlertTriangle, Camera } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/bottom-navigation";
 import InterestBadge from "@/components/interest-badge";
+import { takePicture, isNativePlatform, showToast } from "@/lib/capacitor";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Program mapping
 const programMapping: Record<string, string> = {
@@ -103,10 +105,38 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const isMobile = useIsMobile();
   
   // Determine if this is the current user's profile
   const isCurrentUser = userId === "me" || (user && parseInt(userId) === user.id);
   const targetUserId = isCurrentUser && user ? user.id : parseInt(userId);
+  
+  // Handle taking a picture using the Capacitor Camera plugin
+  const handleTakePicture = async () => {
+    try {
+      if (isNativePlatform()) {
+        const photo = await takePicture();
+        if (photo?.webPath) {
+          setPhotoUrl(photo.webPath);
+          showToast('Profile picture updated!');
+        }
+      } else {
+        toast({
+          title: "Camera not available",
+          description: "This feature is only available in the mobile app.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error taking picture:', error);
+      toast({
+        title: "Camera Error",
+        description: "Could not access camera. Please check permissions.",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Fetch profile data
   const { data: profile, isLoading } = useQuery({

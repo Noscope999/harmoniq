@@ -11,6 +11,8 @@ import ProfilePage from "@/pages/profile-page";
 import EventsPage from "@/pages/events-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
+import { useEffect } from "react";
+import { getPlatform, isNativePlatform } from "./lib/capacitor";
 
 function Router() {
   return (
@@ -27,11 +29,38 @@ function Router() {
 }
 
 function App() {
+  // Add platform-specific class to the body for platform-specific styling
+  useEffect(() => {
+    if (isNativePlatform()) {
+      const platform = getPlatform();
+      document.body.classList.add(platform.toLowerCase());
+      
+      // Add meta viewport for mobile
+      const existingViewport = document.querySelector('meta[name="viewport"]');
+      if (!existingViewport) {
+        const viewport = document.createElement('meta');
+        viewport.setAttribute('name', 'viewport');
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        document.head.appendChild(viewport);
+      }
+      
+      // Add status bar meta for iOS
+      if (platform.toLowerCase() === 'ios') {
+        const statusBarMeta = document.createElement('meta');
+        statusBarMeta.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+        statusBarMeta.setAttribute('content', 'black-translucent');
+        document.head.appendChild(statusBarMeta);
+      }
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router />
-        <Toaster />
+        <div className={`app-container ${isNativePlatform() ? 'native-app' : 'web-app'}`}>
+          <Router />
+          <Toaster />
+        </div>
       </AuthProvider>
     </QueryClientProvider>
   );
