@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import Logo from "@/components/logo";
 
 // Login form schema
 const loginFormSchema = z.object({
@@ -89,15 +90,9 @@ export default function AuthPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center justify-center mb-8">
-            <div className="w-20 h-20 flex items-center justify-center shadow-lg mb-3 relative">
-              {/* Two intersecting chat bubbles as logo */}
-              <div className="absolute w-14 h-14 bg-primary/80 rounded-full left-1"></div>
-              <div className="absolute w-14 h-14 bg-primary rounded-full right-1"></div>
-              <div className="absolute w-8 h-8 bg-white rounded-full z-10 flex items-center justify-center">
-                <span className="text-primary text-sm font-bold">H</span>
-              </div>
+            <div className="mb-3">
+              <Logo size="large" showText={true} className="text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-primary">Harmonique</h1>
             <p className="text-center text-gray-500">Where Harmony and Uniqueness Intersect</p>
           </div>
 
@@ -242,9 +237,9 @@ export default function AuthPage() {
       {/* Right column: Hero section */}
       <div className="flex-1 bg-primary p-6 text-white flex items-center justify-center hidden md:flex">
         <div className="max-w-md">
-          <h2 className="text-3xl font-bold mb-4">Discover your perfect harmony at VIT</h2>
+          <h2 className="text-3xl font-bold mb-4">Discover your perfect harmoniq at VIT</h2>
           <p className="mb-6">
-            Harmonique helps you find and connect with students who complement your unique interests,
+            harmoniq helps you find and connect with students who complement your unique interests,
             hobbies, and personality. Create authentic connections that enrich your college experience.
           </p>
           <div className="space-y-4">
@@ -259,7 +254,7 @@ export default function AuthPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Meaningful Connections</h3>
-                <p className="text-sm text-white text-opacity-80">Find people whose uniqueness harmonizes with yours</p>
+                <p className="text-sm text-white text-opacity-80">Find people whose uniqueness intersects with yours</p>
               </div>
             </div>
             <div className="flex items-start">

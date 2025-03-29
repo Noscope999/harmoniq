@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import BottomNavigation from "@/components/bottom-navigation";
 import MatchCard from "@/components/match-card";
 import InterestBadge from "@/components/interest-badge";
+import Logo from "@/components/logo";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -27,12 +28,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="bg-primary text-white py-4 px-6 flex items-center sticky top-0 z-10">
         <div className="flex items-center">
-          <div className="w-7 h-7 relative mr-2">
-            {/* Two intersecting chat bubbles as logo */}
-            <div className="absolute w-5 h-5 bg-white/80 rounded-full left-0"></div>
-            <div className="absolute w-5 h-5 bg-white rounded-full right-0"></div>
-          </div>
-          <h1 className="text-xl font-bold">Harmonique</h1>
+          <Logo size="medium" showText={true} className="text-white" />
         </div>
         <div className="ml-auto flex space-x-4">
           <button 
@@ -61,7 +57,7 @@ export default function HomePage() {
 
       {/* Trending Interests Section */}
       <div className="p-4">
-        <h2 className="text-lg font-bold mb-3">Trending Harmonies</h2>
+        <h2 className="text-lg font-bold mb-3">Trending harmoniq</h2>
         {isLoadingTrends ? (
           <div className="flex justify-center">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -84,7 +80,7 @@ export default function HomePage() {
 
       {/* Your Harmonies Section */}
       <div className="p-4 pb-20 flex-1">
-        <h2 className="text-lg font-bold mb-3">Your Harmonies</h2>
+        <h2 className="text-lg font-bold mb-3">Your harmoniq</h2>
         
         {isLoadingMatches ? (
           <div className="flex justify-center py-8">
@@ -92,18 +88,16 @@ export default function HomePage() {
           </div>
         ) : !matches || matches.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <div className="w-24 h-24 relative mb-4">
-              {/* Two intersecting chat bubbles as logo with search icon */}
-              <div className="absolute w-20 h-20 bg-primary/30 rounded-full left-0 top-2"></div>
-              <div className="absolute w-20 h-20 bg-primary/40 rounded-full right-0 top-2"></div>
-              <div className="absolute w-10 h-10 bg-white/90 rounded-full top-7 left-7 z-10 flex items-center justify-center">
+            <div className="mb-4 relative">
+              <Logo size="large" className="text-primary w-24 h-24" />
+              <div className="absolute w-10 h-10 bg-white/90 rounded-full top-7 right-2 z-10 flex items-center justify-center shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </div>
             </div>
-            <h3 className="font-bold text-lg mb-2">Finding your harmony</h3>
+            <h3 className="font-bold text-lg mb-2">Finding your harmoniq</h3>
             <p className="text-gray-500 text-center max-w-xs">
               We're searching for students whose uniqueness intersects with yours. Check back soon for new connections!
             </p>
