@@ -14,8 +14,8 @@ export default function InterestBadge({
   const baseClasses = "px-3 py-1 rounded-full";
   
   const variantClasses = {
-    primary: "bg-primary bg-opacity-10 text-primary hover:bg-primary hover:bg-opacity-20",
-    secondary: "bg-secondary bg-opacity-10 text-secondary hover:bg-secondary hover:bg-opacity-20"
+    primary: "bg-gradient-to-r from-primary/10 to-primary/20 text-primary hover:from-primary/15 hover:to-primary/25 border-primary/30",
+    secondary: "bg-gradient-to-r from-secondary/10 to-secondary/20 text-secondary hover:from-secondary/15 hover:to-secondary/25 border-secondary/30"
   };
   
   return (

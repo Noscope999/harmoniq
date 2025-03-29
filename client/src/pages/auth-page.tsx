@@ -89,11 +89,16 @@ export default function AuthPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center justify-center mb-8">
-            <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-lg mb-3">
-              <span className="text-white text-2xl font-bold">VC</span>
+            <div className="w-20 h-20 flex items-center justify-center shadow-lg mb-3 relative">
+              {/* Two intersecting chat bubbles as logo */}
+              <div className="absolute w-14 h-14 bg-primary/80 rounded-full left-1"></div>
+              <div className="absolute w-14 h-14 bg-primary rounded-full right-1"></div>
+              <div className="absolute w-8 h-8 bg-white rounded-full z-10 flex items-center justify-center">
+                <span className="text-primary text-sm font-bold">H</span>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-primary">VITConnect</h1>
-            <p className="text-center text-gray-500">Find your tribe at VIT University</p>
+            <h1 className="text-2xl font-bold text-primary">Harmonique</h1>
+            <p className="text-center text-gray-500">Where Harmony and Uniqueness Intersect</p>
           </div>
 
           <Card>
@@ -237,10 +242,10 @@ export default function AuthPage() {
       {/* Right column: Hero section */}
       <div className="flex-1 bg-primary p-6 text-white flex items-center justify-center hidden md:flex">
         <div className="max-w-md">
-          <h2 className="text-3xl font-bold mb-4">Connect with your perfect match at VIT</h2>
+          <h2 className="text-3xl font-bold mb-4">Discover your perfect harmony at VIT</h2>
           <p className="mb-6">
-            VITConnect helps you find and connect with like-minded students who share your interests,
-            hobbies, and lifestyle. Build meaningful connections that last through college and beyond.
+            Harmonique helps you find and connect with students who complement your unique interests,
+            hobbies, and personality. Create authentic connections that enrich your college experience.
           </p>
           <div className="space-y-4">
             <div className="flex items-start">
@@ -253,8 +258,8 @@ export default function AuthPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Find Your Tribe</h3>
-                <p className="text-sm text-white text-opacity-80">Match with people who share your interests and values</p>
+                <h3 className="font-semibold text-lg">Meaningful Connections</h3>
+                <p className="text-sm text-white text-opacity-80">Find people whose uniqueness harmonizes with yours</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -264,8 +269,8 @@ export default function AuthPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Private Messaging</h3>
-                <p className="text-sm text-white text-opacity-80">Connect one-on-one with your matches</p>
+                <h3 className="font-semibold text-lg">Private Conversations</h3>
+                <p className="text-sm text-white text-opacity-80">Connect one-on-one in a secure environment</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -279,7 +284,7 @@ export default function AuthPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Campus Events</h3>
-                <p className="text-sm text-white text-opacity-80">Stay updated with the latest events at VIT</p>
+                <p className="text-sm text-white text-opacity-80">Stay connected with what's happening at VIT</p>
               </div>
             </div>
           </div>

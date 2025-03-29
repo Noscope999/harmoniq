@@ -218,7 +218,14 @@ export default function ProfilePage() {
         >
           <ArrowLeft className="h-6 w-6" />
         </button>
-        <h1 className="text-xl font-bold">Profile</h1>
+        <div className="flex items-center">
+          <div className="w-7 h-7 relative mr-2">
+            {/* Two intersecting chat bubbles as logo */}
+            <div className="absolute w-5 h-5 bg-white/80 rounded-full left-0"></div>
+            <div className="absolute w-5 h-5 bg-white rounded-full right-0"></div>
+          </div>
+          <h1 className="text-xl font-bold">Profile</h1>
+        </div>
         {isCurrentUser && (
           <div className="ml-auto">
             <button 
@@ -242,8 +249,13 @@ export default function ProfilePage() {
         ) : profile ? (
           <>
             <div className="flex flex-col items-center mb-6">
-              <div className="w-24 h-24 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mb-3">
-                <span className="text-primary font-bold text-2xl">{getInitials(profile.fullName)}</span>
+              <div className="w-24 h-24 relative mb-3">
+                {/* Two intersecting chat bubbles as logo with initials in center */}
+                <div className="absolute w-20 h-20 bg-primary/70 rounded-full left-0 top-2"></div>
+                <div className="absolute w-20 h-20 bg-primary rounded-full right-0 top-2"></div>
+                <div className="absolute w-14 h-14 bg-white rounded-full top-5 left-5 z-10 flex items-center justify-center">
+                  <span className="text-primary font-bold text-2xl">{getInitials(profile.fullName)}</span>
+                </div>
               </div>
               <h2 className="text-xl font-bold">{profile.fullName}</h2>
               <p className="text-gray-500">

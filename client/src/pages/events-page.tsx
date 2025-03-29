@@ -28,7 +28,14 @@ export default function EventsPage() {
     <div className="min-h-screen bg-light pb-16">
       {/* Header */}
       <div className="bg-primary text-white py-4 px-6 flex items-center sticky top-0 z-10">
-        <h1 className="text-xl font-bold">Campus Events</h1>
+        <div className="flex items-center">
+          <div className="w-7 h-7 relative mr-2">
+            {/* Two intersecting chat bubbles as logo */}
+            <div className="absolute w-5 h-5 bg-white/80 rounded-full left-0"></div>
+            <div className="absolute w-5 h-5 bg-white rounded-full right-0"></div>
+          </div>
+          <h1 className="text-xl font-bold">Campus Events</h1>
+        </div>
       </div>
       
       <div className="container max-w-xl mx-auto p-6">

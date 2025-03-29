@@ -74,8 +74,13 @@ export default function MatchCard({ match, currentUserId }: MatchCardProps) {
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="p-4">
         <div className="flex items-center">
-          <div className="w-12 h-12 bg-primary bg-opacity-20 rounded-full flex items-center justify-center">
-            <span className="text-primary font-bold">{getInitials(otherUser.fullName)}</span>
+          <div className="w-12 h-12 relative">
+            {/* Two intersecting chat bubbles as logo with initials */}
+            <div className="absolute w-10 h-10 bg-primary/30 rounded-full left-0 top-1"></div>
+            <div className="absolute w-10 h-10 bg-primary/60 rounded-full right-0 top-1"></div>
+            <div className="absolute w-7 h-7 bg-white rounded-full top-2.5 left-2.5 z-10 flex items-center justify-center">
+              <span className="text-primary font-bold text-xs">{getInitials(otherUser.fullName)}</span>
+            </div>
           </div>
           <div className="ml-3">
             <h3 className="font-bold">{otherUser.fullName}</h3>
@@ -85,8 +90,31 @@ export default function MatchCard({ match, currentUserId }: MatchCardProps) {
                 : "VIT Student"}
             </p>
           </div>
-          <div className="ml-auto bg-primary bg-opacity-10 text-primary font-bold rounded-full px-3 py-1 text-sm">
-            {compatibilityScore}% Match
+          <div className="ml-auto text-sm font-semibold">
+            <div className="flex items-center">
+              <div className="relative w-10 h-10 mr-1">
+                {/* Mini circular progress indicator */}
+                <svg className="w-10 h-10 transform -rotate-90" viewBox="0 0 36 36">
+                  <circle
+                    cx="18" cy="18" r="15"
+                    fill="none"
+                    className="stroke-primary/20"
+                    strokeWidth="3"
+                  />
+                  <circle
+                    cx="18" cy="18" r="15"
+                    fill="none"
+                    className="stroke-primary"
+                    strokeWidth="3"
+                    strokeDasharray={`${(compatibilityScore / 100) * 94.2} 94.2`}
+                  />
+                </svg>
+                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                  <span className="text-primary text-xs font-bold">{compatibilityScore}%</span>
+                </div>
+              </div>
+              <span className="text-gray-600">Match</span>
+            </div>
           </div>
         </div>
         

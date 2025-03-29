@@ -81,9 +81,9 @@ export default function ChatPage() {
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
           </div>
-          <h2 className="text-xl font-bold mb-2">Match Not Found</h2>
+          <h2 className="text-xl font-bold mb-2">Harmony Not Found</h2>
           <p className="text-gray-600 mb-4">This conversation doesn't exist or you don't have access to it.</p>
-          <Button onClick={() => navigate("/")}>Go Back Home</Button>
+          <Button onClick={() => navigate("/")}>Return to Harmonique</Button>
         </div>
       </div>
     );
@@ -104,10 +104,15 @@ export default function ChatPage() {
         
         {otherUser ? (
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <span className="text-primary font-bold text-sm">
-                {otherUser.fullName.split(' ').map(name => name[0]).join('')}
-              </span>
+            <div className="w-8 h-8 relative">
+              {/* Two intersecting chat bubbles as logo with initials */}
+              <div className="absolute w-6 h-6 bg-white/80 rounded-full left-0 top-1"></div>
+              <div className="absolute w-6 h-6 bg-white rounded-full right-0 top-1"></div>
+              <div className="absolute w-4 h-4 bg-primary rounded-full top-2 left-2 z-10 flex items-center justify-center">
+                <span className="text-white font-bold text-[8px]">
+                  {otherUser.fullName.split(' ').map(name => name[0]).join('')}
+                </span>
+              </div>
             </div>
             <div className="ml-2">
               <h2 className="font-bold text-sm">{otherUser.fullName}</h2>
@@ -150,11 +155,13 @@ export default function ChatPage() {
           </div>
         ) : !messages || messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 p-6">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            <p className="mb-1">No messages yet</p>
-            <p className="text-sm">Send a message to start the conversation!</p>
+            <div className="w-20 h-20 relative mb-4">
+              {/* Two intersecting chat bubbles as logo */}
+              <div className="absolute w-16 h-16 bg-primary/30 rounded-full left-0 top-2"></div>
+              <div className="absolute w-16 h-16 bg-primary/40 rounded-full right-0 top-2"></div>
+            </div>
+            <p className="mb-1">Begin your harmony</p>
+            <p className="text-sm">Send a message to start a meaningful conversation!</p>
           </div>
         ) : (
           <div className="space-y-4">
