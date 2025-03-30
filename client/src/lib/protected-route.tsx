@@ -23,11 +23,11 @@ export function ProtectedRoute({
     );
   }
 
-  // If not logged in, redirect to the login page at root path
+  // If not logged in, redirect to the auth page
   if (!user) {
     return (
       <Route path={path}>
-        <Redirect to="/" />
+        <Redirect to="/auth" />
       </Route>
     );
   }
