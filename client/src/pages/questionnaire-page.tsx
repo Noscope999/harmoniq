@@ -448,6 +448,10 @@ export default function QuestionnairePage() {
     }
   };
   
+  const navigateToLogin = () => {
+    navigate("/auth");
+  };
+  
   const isLastSection = () => {
     return connectionType === "roommates" 
       ? section === ROOMMATE_SECTIONS.length - 1
@@ -1788,16 +1792,27 @@ export default function QuestionnairePage() {
             </div>
             {/* Navigation Buttons */}
             <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 flex justify-between items-center">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={prevSection}
-                disabled={section === 0}
-                className="flex items-center"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
+              {section === 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={navigateToLogin}
+                  className="flex items-center"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Login
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={prevSection}
+                  className="flex items-center"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              )}
               
               {section === 1 && !connectionType ? (
                 <Button type="button" disabled variant="default">
