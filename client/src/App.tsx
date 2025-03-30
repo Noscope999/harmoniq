@@ -17,8 +17,9 @@ import { getPlatform, isNativePlatform } from "./lib/capacitor";
 function Router() {
   return (
     <Switch>
+      <Route path="/" component={AuthPage} />
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/home" component={HomePage} />
       <ProtectedRoute path="/questionnaire" component={QuestionnairePage} />
       <ProtectedRoute path="/chat/:matchId" component={ChatPage} />
       <ProtectedRoute path="/profile/:userId" component={ProfilePage} />
