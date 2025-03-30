@@ -545,25 +545,24 @@ export default function QuestionnairePage() {
           <form className="space-y-6">
             {/* Connection Type Selection */}
             {section === 1 && (
-              <div className="grid grid-cols-1 gap-6">
-                <h3 className="text-lg font-semibold">What are you looking for at VIT?</h3>
-                <p className="text-muted-foreground mb-4">
-                  Choose what type of connections you're interested in making
-                </p>
+              <div className="flex flex-col justify-center items-center h-full mt-4">
+                <h2 className="text-2xl font-bold mb-8 text-center">What are you looking for at VIT?</h2>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
                   {connectionTypeOptions.map((option) => (
                     <Card 
                       key={option.id}
-                      className={`cursor-pointer transition-all hover:border-primary ${
+                      className={`cursor-pointer transition-all hover:border-primary hover:shadow-lg ${
                         connectionType === option.id ? 'border-2 border-primary bg-primary/5' : ''
                       }`}
                       onClick={() => handleConnectionTypeSelect(option.id as "casual_hangouts" | "roommates")}
                     >
-                      <CardContent className="p-6 flex flex-col items-center text-center">
-                        {option.icon}
-                        <h3 className="font-bold text-lg">{option.label}</h3>
-                        <p className="text-sm text-muted-foreground mt-2">{option.description}</p>
+                      <CardContent className="p-8 flex flex-col items-center text-center">
+                        <div className="bg-primary/10 p-4 rounded-full mb-4">
+                          {option.icon}
+                        </div>
+                        <h3 className="font-bold text-xl mb-2">{option.label}</h3>
+                        <p className="text-muted-foreground">{option.description}</p>
                       </CardContent>
                     </Card>
                   ))}

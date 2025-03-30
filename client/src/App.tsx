@@ -18,7 +18,6 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={AuthPage} />
-      <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/home" component={HomePage} />
       <ProtectedRoute path="/questionnaire" component={QuestionnairePage} />
       <ProtectedRoute path="/chat/:matchId" component={ChatPage} />
