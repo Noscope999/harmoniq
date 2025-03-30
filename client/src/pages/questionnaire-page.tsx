@@ -9,12 +9,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Check, Home, Users } from "lucide-react";
 
 // Program options
 const programOptions = [
@@ -35,6 +36,91 @@ const yearOptions = [
   { id: "3", label: "Third Year" },
   { id: "4", label: "Fourth Year" },
   { id: "5", label: "Fifth Year" }
+];
+
+// Connection Type options
+const connectionTypeOptions = [
+  { id: "casual_hangouts", label: "Casual Hangouts", description: "Connect with people for casual meetups, study sessions, or campus events", icon: <Users className="h-8 w-8 mb-2" /> },
+  { id: "roommates", label: "Roommates", description: "Find compatible roommates based on living habits and preferences", icon: <Home className="h-8 w-8 mb-2" /> }
+];
+
+// Roommate-specific options
+// Sleep Schedule options
+const sleepScheduleOptions = [
+  { id: "early_bird", label: "Early Bird" },
+  { id: "night_owl", label: "Night Owl" },
+  { id: "flexible", label: "Flexible" }
+];
+
+// Tidiness options
+const tidinessOptions = [
+  { id: "very_tidy", label: "Very Tidy" },
+  { id: "moderately_tidy", label: "Moderately Tidy" },
+  { id: "messy", label: "Messy" }
+];
+
+// Dietary options
+const dietaryOptions = [
+  { id: "vegetarian", label: "Vegetarian" },
+  { id: "vegan", label: "Vegan" },
+  { id: "non_vegetarian", label: "Non-vegetarian" },
+  { id: "other", label: "Other" }
+];
+
+// Cooking Frequency options
+const cookingFrequencyOptions = [
+  { id: "daily", label: "Daily" },
+  { id: "occasionally", label: "Occasionally" },
+  { id: "rarely", label: "Rarely" }
+];
+
+// Sharing Comfort options
+const sharingComfortOptions = [
+  { id: "ok_with_it", label: "Okay with it" },
+  { id: "only_certain_items", label: "Only certain items" },
+  { id: "not_comfortable", label: "Not comfortable" }
+];
+
+// Guest Frequency options
+const guestFrequencyOptions = [
+  { id: "never", label: "Never" },
+  { id: "occasionally", label: "Occasionally" },
+  { id: "often", label: "Often" }
+];
+
+// Noise Preference options
+const noisePreferenceOptions = [
+  { id: "quiet", label: "Quiet" },
+  { id: "moderate", label: "Moderate" },
+  { id: "lively", label: "Lively" }
+];
+
+// Chores Splitting options
+const choresSplittingOptions = [
+  { id: "equally", label: "Equally" },
+  { id: "based_on_preferences", label: "Based on personal preferences" },
+  { id: "hire_help", label: "Hire help if needed" }
+];
+
+// Pet Allergies options
+const petAllergiesOptions = [
+  { id: "yes", label: "Yes" },
+  { id: "no", label: "No" },
+  { id: "open_to_pets", label: "Open to pets" }
+];
+
+// Communication Style options
+const communicationStyleOptions = [
+  { id: "directly", label: "Directly" },
+  { id: "indirectly", label: "Indirectly" },
+  { id: "dont_mind", label: "Don't mind" }
+];
+
+// Personality Trait options
+const personalityTraitOptions = [
+  { id: "introverted", label: "Introverted" },
+  { id: "extroverted", label: "Extroverted" },
+  { id: "ambivert", label: "Ambivert" }
 ];
 
 // Free time options
@@ -135,10 +221,19 @@ const streamingServiceOptions = [
 ];
 
 // Validation schema
-const questionnaireSchema = z.object({
+const baseQuestionnaireSchema = z.object({
   // Academic Info
   program: z.string().min(1, "Please select your program"),
   year: z.string().min(1, "Please select your year of study"),
+  
+  // Connection type
+  connectionType: z.string().min(1, "Please select a connection type"),
+});
+
+// Schema extension for casual hangouts 
+const casualHangoutsSchema = baseQuestionnaireSchema.extend({
+  // Make sure connectionType is "casual_hangouts"
+  connectionType: z.literal("casual_hangouts"),
   
   // Lifestyle Questions
   freeTime: z.string().min(1, "Please select an option"),
@@ -173,21 +268,72 @@ const questionnaireSchema = z.object({
   podcastPreference: z.string().min(1, "Please provide an answer"),
 });
 
-type QuestionnaireData = z.infer<typeof questionnaireSchema>;
+// Schema extension for roommates
+const roommatesSchema = baseQuestionnaireSchema.extend({
+  // Make sure connectionType is "roommates"
+  connectionType: z.literal("roommates"),
+  
+  // Objective Roommate Questions
+  sleepSchedule: z.string().min(1, "Please select an option"),
+  tidiness: z.string().min(1, "Please select an option"),
+  dietaryPreferences: z.string().min(1, "Please select an option"),
+  cookingFrequency: z.string().min(1, "Please select an option"),
+  sharingComfort: z.string().min(1, "Please select an option"),
+  guestFrequency: z.string().min(1, "Please select an option"),
+  noisePreference: z.string().min(1, "Please select an option"),
+  choresSplitting: z.string().min(1, "Please select an option"),
+  petAllergies: z.string().min(1, "Please select an option"),
+  
+  // Subjective Roommate Questions
+  roommateBreakers: z.string().min(1, "Please provide an answer"),
+  conflictHandling: z.string().min(1, "Please provide an answer"),
+  musicBehavior: z.string().min(1, "Please provide an answer"),
+  weekendRoutine: z.string().min(1, "Please provide an answer"),
+  personalSpaceDefinition: z.string().min(1, "Please provide an answer"),
+  communicationStyle: z.string().min(1, "Please select an option"),
+  roommateHobbies: z.array(z.string()).min(1, "Please list at least one hobby"),
+  personalityTrait: z.string().min(1, "Please select an option"),
+  idealRoommate: z.string().min(1, "Please provide an answer"),
+  studyWorkHabits: z.string().min(1, "Please provide an answer"),
+  additionalRoommateInfo: z.string().optional(),
+});
 
-const SECTIONS = ["academic", "lifestyle", "entertainment", "subjective", "additional"];
+// Combined schema using discriminated union
+const questionnaireSchema = z.discriminatedUnion("connectionType", [
+  casualHangoutsSchema,
+  roommatesSchema
+]);
+
+type QuestionnaireData = z.infer<typeof questionnaireSchema>;
+type CasualHangoutsData = z.infer<typeof casualHangoutsSchema>;
+type RoommatesData = z.infer<typeof roommatesSchema>;
+
+// Sections for casual hangouts flow
+const CASUAL_SECTIONS = ["academic", "connection", "lifestyle", "entertainment", "subjective", "additional"];
+
+// Sections for roommates flow
+const ROOMMATE_SECTIONS = ["academic", "connection", "roommate_objective", "roommate_subjective"];
 
 export default function QuestionnairePage() {
   const [section, setSection] = useState(0);
+  const [connectionType, setConnectionType] = useState<"casual_hangouts" | "roommates" | null>(null);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // Get current sections based on connection type selection
+  const SECTIONS = connectionType === "roommates" 
+    ? ROOMMATE_SECTIONS 
+    : (connectionType === "casual_hangouts" ? CASUAL_SECTIONS : CASUAL_SECTIONS);
   
   const form = useForm<QuestionnaireData>({
     resolver: zodResolver(questionnaireSchema),
     defaultValues: {
       program: "",
       year: "",
+      connectionType: connectionType || undefined,
+      
+      // Casual hangouts fields
       freeTime: "",
       productiveTime: "",
       favoriteColor: "",
@@ -212,8 +358,38 @@ export default function QuestionnairePage() {
       dreamsGoals: "",
       idealWeekend: "",
       podcastPreference: "",
-    },
+      
+      // Roommate fields
+      sleepSchedule: "",
+      tidiness: "",
+      dietaryPreferences: "",
+      cookingFrequency: "",
+      sharingComfort: "",
+      guestFrequency: "",
+      noisePreference: "",
+      choresSplitting: "",
+      petAllergies: "",
+      roommateBreakers: "",
+      conflictHandling: "",
+      musicBehavior: "",
+      weekendRoutine: "",
+      personalSpaceDefinition: "",
+      communicationStyle: "",
+      roommateHobbies: [],
+      personalityTrait: "",
+      idealRoommate: "",
+      studyWorkHabits: "",
+      additionalRoommateInfo: "",
+    } as any,
   });
+  
+  // Handle connection type selection
+  const handleConnectionTypeSelect = (type: "casual_hangouts" | "roommates") => {
+    setConnectionType(type);
+    form.setValue("connectionType", type);
+    setSection(2); // Move to the next section after connection type selection
+    window.scrollTo(0, 0);
+  };
   
   const submitMutation = useMutation({
     mutationFn: async (data: QuestionnaireData) => {
@@ -261,43 +437,92 @@ export default function QuestionnairePage() {
   
   const prevSection = () => {
     if (section > 0) {
+      // If we're going back from a connection-type-specific section to the connection type selection
+      if (section === 2) {
+        setConnectionType(null);
+        form.setValue("connectionType", undefined as any);
+      }
+      
       setSection(section - 1);
       window.scrollTo(0, 0);
     }
   };
   
-  const getFieldsForSection = (sectionIndex: number): (keyof QuestionnaireData)[] => {
-    switch (SECTIONS[sectionIndex]) {
-      case "academic":
-        return ["program", "year"];
-      case "lifestyle":
-        return ["freeTime", "productiveTime", "favoriteColor", "socialPreference", "foodPreference"];
-      case "entertainment":
-        return ["movieGenre", "musicGenre", "sports", "streamingServices"];
-      case "subjective":
-        return ["favoriteArtist", "favoriteBook", "favoriteHobby", "favoritePlace"];
-      case "additional":
-        return ["favoriteSubject", "favoriteApp", "favoriteGame", "personalityType", "techUsage", 
-                "petPreference", "travelPreference", "studyStyle", "dreamsGoals", "idealWeekend", "podcastPreference"];
-      default:
-        return [];
+  const isLastSection = () => {
+    return connectionType === "roommates" 
+      ? section === ROOMMATE_SECTIONS.length - 1
+      : section === CASUAL_SECTIONS.length - 1;
+  };
+  
+  const getFieldsForSection = (sectionIndex: number): string[] => {
+    if (connectionType === "roommates") {
+      switch (ROOMMATE_SECTIONS[sectionIndex]) {
+        case "academic":
+          return ["program", "year"];
+        case "connection":
+          return ["connectionType"];
+        case "roommate_objective":
+          return ["sleepSchedule", "tidiness", "dietaryPreferences", "cookingFrequency", 
+                  "sharingComfort", "guestFrequency", "noisePreference", "choresSplitting", "petAllergies"];
+        case "roommate_subjective":
+          return ["roommateBreakers", "conflictHandling", "musicBehavior", "weekendRoutine", 
+                  "personalSpaceDefinition", "communicationStyle", "roommateHobbies", 
+                  "personalityTrait", "idealRoommate", "studyWorkHabits", "additionalRoommateInfo"];
+        default:
+          return [];
+      }
+    } else {
+      switch (CASUAL_SECTIONS[sectionIndex]) {
+        case "academic":
+          return ["program", "year"];
+        case "connection":
+          return ["connectionType"];
+        case "lifestyle":
+          return ["freeTime", "productiveTime", "favoriteColor", "socialPreference", "foodPreference"];
+        case "entertainment":
+          return ["movieGenre", "musicGenre", "sports", "streamingServices"];
+        case "subjective":
+          return ["favoriteArtist", "favoriteBook", "favoriteHobby", "favoritePlace"];
+        case "additional":
+          return ["favoriteSubject", "favoriteApp", "favoriteGame", "personalityType", "techUsage", 
+                 "petPreference", "travelPreference", "studyStyle", "dreamsGoals", "idealWeekend", "podcastPreference"];
+        default:
+          return [];
+      }
     }
   };
   
   const getSectionTitle = (sectionIndex: number): string => {
-    switch (SECTIONS[sectionIndex]) {
-      case "academic":
-        return "Academic Information";
-      case "lifestyle":
-        return "Lifestyle & Habits";
-      case "entertainment":
-        return "Entertainment Preferences";
-      case "subjective":
-        return "About You";
-      case "additional":
-        return "Additional Preferences";
-      default:
-        return "";
+    if (connectionType === "roommates") {
+      switch (ROOMMATE_SECTIONS[sectionIndex]) {
+        case "academic":
+          return "Academic Information";
+        case "connection":
+          return "Connection Type";
+        case "roommate_objective":
+          return "Living Habits";
+        case "roommate_subjective":
+          return "Roommate Preferences";
+        default:
+          return "";
+      }
+    } else {
+      switch (CASUAL_SECTIONS[sectionIndex]) {
+        case "academic":
+          return "Academic Information";
+        case "connection":
+          return "Connection Type";
+        case "lifestyle":
+          return "Lifestyle & Habits";
+        case "entertainment":
+          return "Entertainment Preferences";
+        case "subjective":
+          return "About You";
+        case "additional":
+          return "Additional Preferences";
+        default:
+          return "";
+      }
     }
   };
   
@@ -314,6 +539,519 @@ export default function QuestionnairePage() {
         
         <Form {...form}>
           <form className="space-y-6">
+            {/* Connection Type Selection */}
+            {section === 1 && (
+              <div className="grid grid-cols-1 gap-6">
+                <h3 className="text-lg font-semibold">What are you looking for at VIT?</h3>
+                <p className="text-muted-foreground mb-4">
+                  Choose what type of connections you're interested in making
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                  {connectionTypeOptions.map((option) => (
+                    <Card 
+                      key={option.id}
+                      className={`cursor-pointer transition-all hover:border-primary ${
+                        connectionType === option.id ? 'border-2 border-primary bg-primary/5' : ''
+                      }`}
+                      onClick={() => handleConnectionTypeSelect(option.id as "casual_hangouts" | "roommates")}
+                    >
+                      <CardContent className="p-6 flex flex-col items-center text-center">
+                        {option.icon}
+                        <h3 className="font-bold text-lg">{option.label}</h3>
+                        <p className="text-sm text-muted-foreground mt-2">{option.description}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Roommate Objective Questions */}
+            {section === 2 && connectionType === "roommates" && (
+              <div className="space-y-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <FormField
+                      control={form.control}
+                      name="sleepSchedule"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>What is your usual sleep schedule?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your sleep schedule" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {sleepScheduleOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="tidiness"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>How tidy do you keep your living space?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your tidiness preference" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {tidinessOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dietaryPreferences"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>Do you have any dietary restrictions or preferences?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your dietary preference" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {dietaryOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="cookingFrequency"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>How often do you cook at home?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your cooking frequency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {cookingFrequencyOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="sharingComfort"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>How comfortable are you with sharing personal belongings?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your sharing comfort level" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {sharingComfortOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <FormField
+                      control={form.control}
+                      name="guestFrequency"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>How frequently do you have guests over?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your guest frequency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {guestFrequencyOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="noisePreference"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>Do you prefer a quiet or lively environment at home?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your noise preference" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {noisePreferenceOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="choresSplitting"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>How do you prefer to split household chores?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your chores preference" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {choresSplittingOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="petAllergies"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Do you have any pet allergies or aversions to pets?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your pet preference" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {petAllergiesOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            
+            {/* Roommate Subjective Questions */}
+            {section === 3 && connectionType === "roommates" && (
+              <div className="space-y-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <FormField
+                      control={form.control}
+                      name="roommateBreakers"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>What are your top three deal-breakers in a roommate?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Example: smoking indoors, loud music after 11pm, etc."
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="conflictHandling"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>How do you handle conflicts or disagreements?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe your approach to resolving conflicts"
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="musicBehavior"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>What kind of music do you usually listen to, and do you play it out loud?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe your music preferences and listening habits"
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <FormField
+                      control={form.control}
+                      name="weekendRoutine"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>Describe your ideal weekend routine</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="How do you typically spend your weekends?"
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="personalSpaceDefinition"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>What is your definition of personal space in a shared room?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe how you view personal boundaries in shared living"
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="communicationStyle"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>How do you prefer to communicate about household responsibilities?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your communication style" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {communicationStyleOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="roommateHobbies"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>What are your hobbies and interests?</FormLabel>
+                          <FormDescription>Select all that apply</FormDescription>
+                          <div className="grid grid-cols-2 gap-2 mt-2">
+                            {sportsOptions.map((option) => (
+                              <FormItem
+                                key={option.id}
+                                className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(option.id)}
+                                    onCheckedChange={(checked) => {
+                                      let updatedValue = [...(field.value || [])];
+                                      if (checked) {
+                                        updatedValue.push(option.id);
+                                      } else {
+                                        updatedValue = updatedValue.filter((val) => val !== option.id);
+                                      }
+                                      field.onChange(updatedValue);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal">{option.label}</FormLabel>
+                              </FormItem>
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <FormField
+                      control={form.control}
+                      name="personalityTrait"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>Are you more introverted, extroverted, or ambivert?</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your personality trait" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {personalityTraitOptions.map((option) => (
+                                <SelectItem key={option.id} value={option.id}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="idealRoommate"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>What does a perfect roommate look like to you?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe your ideal roommate"
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="studyWorkHabits"
+                      render={({ field }) => (
+                        <FormItem className="mb-6">
+                          <FormLabel>Do you have any particular study/work habits a roommate should be aware of?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Example: I study late at night, I need absolute silence when studying, etc."
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="additionalRoommateInfo"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Is there anything else you'd like to mention that might affect compatibility?</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Any additional information you'd like potential roommates to know"
+                              {...field}
+                              className="min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            
             {/* Academic Info Section */}
             {section === 0 && (
               <>
@@ -1045,6 +1783,48 @@ export default function QuestionnairePage() {
                     "Submitting..." : 
                     <>Complete <Check className="ml-2 h-4 w-4" /></>
                   }
+                </Button>
+              )}
+            </div>
+            {/* Navigation Buttons */}
+            <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 flex justify-between items-center">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={prevSection}
+                disabled={section === 0}
+                className="flex items-center"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              
+              {section === 1 && !connectionType ? (
+                <Button type="button" disabled variant="default">
+                  Select a Connection Type
+                </Button>
+              ) : isLastSection() ? (
+                <Button
+                  type="button"
+                  onClick={() => form.handleSubmit(onSubmit)()}
+                  className="flex items-center"
+                  disabled={submitMutation.isPending}
+                >
+                  {submitMutation.isPending ? (
+                    <>Saving...</>
+                  ) : (
+                    <>
+                      Save <Save className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={nextSection}
+                  className="flex items-center"
+                >
+                  Next <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               )}
             </div>

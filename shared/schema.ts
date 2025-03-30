@@ -19,6 +19,9 @@ export const questionnaires = pgTable("questionnaires", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   
+  // Connection type preference (new)
+  connectionType: text("connection_type"),  // "casual_hangouts" or "roommates"
+  
   // VIT-Specific and Activity-Based Questions (Objective)
   activeClub: text("active_club"),
   memorableEvent: text("memorable_event"),
@@ -49,6 +52,31 @@ export const questionnaires = pgTable("questionnaires", {
   collaborationInterest: text("collaboration_interest"),
   vitMemes: text("vit_memes"),
   skillToLearn: text("skill_to_learn"),
+  
+  // Roommate-specific fields (new)
+  // Objective Roommate Questions
+  sleepSchedule: text("sleep_schedule"),
+  tidiness: text("tidiness"),
+  dietaryPreferences: text("dietary_preferences"),
+  cookingFrequency: text("cooking_frequency"),
+  sharingComfort: text("sharing_comfort"),
+  guestFrequency: text("guest_frequency"),
+  noisePreference: text("noise_preference"),
+  choresSplitting: text("chores_splitting"),
+  petAllergies: text("pet_allergies"),
+  
+  // Subjective Roommate Questions
+  roommateBreakers: text("roommate_breakers"),
+  conflictHandling: text("conflict_handling"),
+  musicBehavior: text("music_behavior"),
+  weekendRoutine: text("weekend_routine"),
+  personalSpaceDefinition: text("personal_space_definition"),
+  communicationStyle: text("communication_style"),
+  roommateHobbies: text("roommate_hobbies").array(),
+  personalityTrait: text("personality_trait"),
+  idealRoommate: text("ideal_roommate"),
+  studyWorkHabits: text("study_work_habits"),
+  additionalRoommateInfo: text("additional_roommate_info"),
   
   // Legacy fields (kept for backward compatibility)
   freeTime: text("free_time"),
