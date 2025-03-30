@@ -449,7 +449,7 @@ export default function QuestionnairePage() {
   };
   
   const navigateToLogin = () => {
-    navigate("/auth");
+    navigate("/");
   };
   
   const isLastSection = () => {
