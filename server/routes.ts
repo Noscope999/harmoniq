@@ -247,6 +247,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to get trends" });
     }
   });
+  
+  // Popularity scores routes
+  app.get("/api/popularity-scores", async (req: Request, res: Response) => {
+    try {
+      const entityType = req.query.type as string | undefined;
+      const scores = await storage.getPopularityScores(entityType);
+      res.status(200).json(scores);
+    } catch (error) {
+      console.error("Error fetching popularity scores:", error);
+      res.status(500).json({ message: "Failed to fetch popularity scores" });
+    }
+  });
+  
+  // This specific route should be before the generic ID route to avoid conflicts
+  app.get("/api/popularity-scores/entity/:type/:name", async (req: Request, res: Response) => {
+    try {
+      const { type, name } = req.params;
+      
+      const score = await storage.getPopularityScoreByEntity(name, type);
+      if (!score) {
+        return res.status(404).json({ message: "Popularity score not found" });
+      }
+      
+      res.status(200).json(score);
+    } catch (error) {
+      console.error("Error fetching popularity score by entity:", error);
+      res.status(500).json({ message: "Failed to fetch popularity score" });
+    }
+  });
+  
+  app.get("/api/popularity-scores/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID" });
+      }
+      
+      const score = await storage.getPopularityScore(id);
+      if (!score) {
+        return res.status(404).json({ message: "Popularity score not found" });
+      }
+      
+      res.status(200).json(score);
+    } catch (error) {
+      console.error("Error fetching popularity score:", error);
+      res.status(500).json({ message: "Failed to fetch popularity score" });
+    }
+  });
 
   // Profile route
   app.get("/api/profile/:userId", async (req: Request, res: Response) => {

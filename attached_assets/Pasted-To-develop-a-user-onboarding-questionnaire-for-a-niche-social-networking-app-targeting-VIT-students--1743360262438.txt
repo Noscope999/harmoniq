@@ -1,0 +1,37 @@
+To develop a user onboarding questionnaire for a niche social networking app targeting VIT students, we have structured the questions into three main categories: VIT-specific, activity-based, and niche interests, ensuring a balance between objective and subjective formats.
+
+### Objective Questions (VIT-Specific and Activity-Based)
+
+1. Which VIT club or organization are you most active in? (Options: Technical Clubs, Cultural Clubs, Sports Clubs, etc.)
+2. What is the most memorable event you've attended at VIT? (Options: Fresher's Week, TechFest, Cultural Events, etc.)
+3. Which hangout spot on campus do you prefer? (Options: Cafeteria, Library,Sportsparks, etc.)
+4. Have you participated in any tech-related projects or competitions? (Options: Yes/No, List Projects)
+5. Which cultural performance or dance form do you enjoy the most? (Options: Bharatanatyam, Kathak, Contemporary, etc.)
+6. Do you prefer indoor or outdoor activities during your free time? (Options: Indoor, Outdoor)
+7. Have you attended any workshops or seminars at VIT? (Options: Yes/No, Topics)
+8. What type of sports or physical activities do you enjoy? (Options: Cricket, Tennis, Yoga, etc.)
+9. Are you involved in any volunteer work or community service? (Options: Yes/No, Details)
+10. Which language or dialect do you speak or are interested in learning? (Options: Tamil, Telugu, English, etc.)
+
+### Subjective Questions (Niche Interests and Activities)
+
+11. Describe your ideal weekend spent at VIT.
+12. What would you do if you had an entirely free day at VIT?
+13. Do you have any hidden talents or skills that few people know about?
+14. If you could organize a unique activity or event at VIT, what would it be?
+15. What are your most unusual or rare hobbies?
+16. What type of music or bands do you enjoy, and how do you incorporate music into your life?
+17. What books, journals, or podcasts do you enjoy reading or listening to, and how do they influence your interests?
+18. Do you engage in any form of creative expression, such as art, writing, or photography? If so, how?
+19. What is your favorite form of art or creative expression, and how do you connect with it?
+20. What type of outdoor adventures or explorations do you enjoy, and how have you participated in them?
+
+### Additional Questions (Niche Interests and Activities)
+
+21. What are your favorite board games, card games, or video games, and how do they reflect your personality?
+22. Do you have any quirky knowledge or expertise in a particular niche area? How did you develop this interest?
+23. If you could collaborate on a project with other students, what area of study or activity would you choose?
+24. What "inside jokes" or memes resonate with you the most in the VIT community?
+25. If you could learn a new language or skill, what would it be, and how would you apply it at VIT?
+
+This questionnaire is designed to uncover unique interests and hobbies, providing a foundation for matching students with like-minded peers based on shared niche activities and preferences.

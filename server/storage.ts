@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser, type Questionnaire, type InsertQuestionnaire, type Match, type InsertMatch, type Message, type InsertMessage, type Report, type InsertReport, type Event, type InsertEvent, type Trend, type InsertTrend, questionnaires, matches, messages, reports, events, trends } from "@shared/schema";
+import { users, type User, type InsertUser, type Questionnaire, type InsertQuestionnaire, type Match, type InsertMatch, type Message, type InsertMessage, type Report, type InsertReport, type Event, type InsertEvent, type Trend, type InsertTrend, type PopularityScore, type InsertPopularityScore, questionnaires, matches, messages, reports, events, trends, popularityScores } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import { drizzle } from "drizzle-orm/neon-serverless";
@@ -55,6 +55,13 @@ export interface IStorage {
   createTrend(trend: InsertTrend): Promise<Trend>;
   updateTrend(name: string): Promise<Trend | undefined>;
   
+  // Popularity Score methods
+  getPopularityScores(entityType?: string): Promise<PopularityScore[]>;
+  getPopularityScore(id: number): Promise<PopularityScore | undefined>;
+  getPopularityScoreByEntity(entityName: string, entityType: string): Promise<PopularityScore | undefined>;
+  createPopularityScore(score: InsertPopularityScore): Promise<PopularityScore>;
+  updatePopularityScore(id: number, score: Partial<PopularityScore>): Promise<PopularityScore | undefined>;
+  
   // Process matching
   processMatching(userId: number): Promise<Match[]>;
   
@@ -70,6 +77,7 @@ export class MemStorage implements IStorage {
   private reports: Map<number, Report>;
   private events: Map<number, Event>;
   private trends: Map<number, Trend>;
+  private popularityScores: Map<number, PopularityScore>;
   
   sessionStore: session.Store;
   currentId: {
@@ -80,6 +88,7 @@ export class MemStorage implements IStorage {
     reports: number;
     events: number;
     trends: number;
+    popularityScores: number;
   };
 
   constructor() {
@@ -90,6 +99,7 @@ export class MemStorage implements IStorage {
     this.reports = new Map();
     this.events = new Map();
     this.trends = new Map();
+    this.popularityScores = new Map();
     
     this.currentId = {
       users: 1,
@@ -98,7 +108,8 @@ export class MemStorage implements IStorage {
       messages: 1,
       reports: 1,
       events: 1,
-      trends: 1
+      trends: 1,
+      popularityScores: 1
     };
     
     this.sessionStore = new MemoryStore({
@@ -128,6 +139,47 @@ export class MemStorage implements IStorage {
     this.createTrend({ name: "HackathonClub", count: 25 });
     this.createTrend({ name: "CodingChallenge", count: 20 });
     this.createTrend({ name: "MusicSociety", count: 18 });
+    
+    // Add popularity scores for common preferences
+    this.createPopularityScore({
+      entityName: "AR Rahman",
+      entityType: "artist",
+      searchVolume: 95,
+      socialMediaPresence: 90,
+      recentActivity: 85,
+      relevanceToVIT: 75,
+      totalScore: 88
+    });
+    
+    this.createPopularityScore({
+      entityName: "Virat Kohli",
+      entityType: "athlete",
+      searchVolume: 98,
+      socialMediaPresence: 95,
+      recentActivity: 90,
+      relevanceToVIT: 70,
+      totalScore: 90
+    });
+    
+    this.createPopularityScore({
+      entityName: "Harry Potter",
+      entityType: "book",
+      searchVolume: 85,
+      socialMediaPresence: 80,
+      recentActivity: 60,
+      relevanceToVIT: 65,
+      totalScore: 75
+    });
+    
+    this.createPopularityScore({
+      entityName: "Photography",
+      entityType: "hobby",
+      searchVolume: 80,
+      socialMediaPresence: 85,
+      recentActivity: 70,
+      relevanceToVIT: 75,
+      totalScore: 78
+    });
   }
 
   // User methods
@@ -347,6 +399,53 @@ export class MemStorage implements IStorage {
     }
   }
   
+  // Popularity Score methods
+  async getPopularityScores(entityType?: string): Promise<PopularityScore[]> {
+    let scores = Array.from(this.popularityScores.values());
+    if (entityType) {
+      scores = scores.filter(score => score.entityType === entityType);
+    }
+    return scores.sort((a, b) => b.totalScore - a.totalScore);
+  }
+  
+  async getPopularityScore(id: number): Promise<PopularityScore | undefined> {
+    return this.popularityScores.get(id);
+  }
+  
+  async getPopularityScoreByEntity(entityName: string, entityType: string): Promise<PopularityScore | undefined> {
+    return Array.from(this.popularityScores.values()).find(
+      score => 
+        score.entityName.toLowerCase() === entityName.toLowerCase() && 
+        score.entityType === entityType
+    );
+  }
+  
+  async createPopularityScore(insertScore: InsertPopularityScore): Promise<PopularityScore> {
+    const id = this.currentId.popularityScores++;
+    const now = new Date();
+    const score: PopularityScore = { 
+      ...insertScore, 
+      id, 
+      createdAt: now,
+      updatedAt: now
+    };
+    this.popularityScores.set(id, score);
+    return score;
+  }
+  
+  async updatePopularityScore(id: number, scoreData: Partial<PopularityScore>): Promise<PopularityScore | undefined> {
+    const score = this.popularityScores.get(id);
+    if (!score) return undefined;
+    
+    const updatedScore = { 
+      ...score, 
+      ...scoreData,
+      updatedAt: new Date()
+    };
+    this.popularityScores.set(id, updatedScore);
+    return updatedScore;
+  }
+  
   // Process matching
   async processMatching(userId: number): Promise<Match[]> {
     const userQuestionnaire = await this.getQuestionnaire(userId);
@@ -391,94 +490,157 @@ export class MemStorage implements IStorage {
   }
   
   // Helper method to calculate compatibility between two users
-  private calculateCompatibility(q1: Questionnaire, q2: Questionnaire): { score: number, categories: string[] } {
-    const matchedCategories: string[] = [];
-    let totalFields = 0;
-    let matchingFields = 0;
-    
-    // Compare each field
-    const fieldsToCompare: (keyof Questionnaire)[] = [
-      'freeTime', 'productiveTime', 'favoriteColor', 'movieGenre', 'musicGenre',
-      'favoriteHobby', 'foodPreference', 'travelPreference', 'socialPreference',
-      'studyStyle', 'personalityType', 'idealWeekend', 'favoriteSubject',
-      'favoriteApp', 'techUsage', 'petPreference'
-    ];
-    
-    // Array fields
-    const arrayFields: (keyof Questionnaire)[] = ['sports', 'streamingServices'];
-    
-    // Category mappings
-    const categoryMap: Record<keyof Questionnaire, string> = {
-      freeTime: 'Leisure',
-      productiveTime: 'Work Habits',
-      favoriteColor: 'Personal Preferences',
-      movieGenre: 'Entertainment',
-      musicGenre: 'Entertainment',
-      favoriteArtist: 'Entertainment',
-      favoriteBook: 'Entertainment',
-      favoriteHobby: 'Hobbies',
-      favoritePlace: 'Travel',
-      sports: 'Sports',
-      foodPreference: 'Lifestyle',
-      travelPreference: 'Travel',
-      socialPreference: 'Social Preferences',
-      studyStyle: 'Academic',
-      personalityType: 'Personality',
-      dreamsGoals: 'Aspirations',
-      idealWeekend: 'Lifestyle',
-      favoriteSubject: 'Academic',
-      favoriteApp: 'Technology',
-      favoriteGame: 'Entertainment',
-      streamingServices: 'Entertainment',
-      podcastPreference: 'Entertainment',
-      techUsage: 'Technology',
-      petPreference: 'Lifestyle',
-      userId: '',
-      id: '',
-      createdAt: ''
-    };
-    
-    // Check regular fields
-    for (const field of fieldsToCompare) {
-      if (q1[field] && q2[field]) {
-        totalFields++;
-        if (q1[field] === q2[field]) {
-          matchingFields++;
-          const category = categoryMap[field];
-          if (category && !matchedCategories.includes(category)) {
-            matchedCategories.push(category);
-          }
+// New implementation of calculateCompatibility method
+private calculateCompatibility(q1: Questionnaire, q2: Questionnaire): { score: number, categories: string[] } {
+  const matchedCategories: string[] = [];
+  
+  // Objective fields (exact matching)
+  const objectiveFields: (keyof Questionnaire)[] = [
+    'productiveTime', 'favoriteColor', 'movieGenre', 'musicGenre',
+    'foodPreference', 'travelPreference', 'socialPreference',
+    'studyStyle', 'idealWeekend', 'techUsage', 'petPreference'
+  ];
+  
+  // Subjective fields (with popularity scoring)
+  const subjectiveFields: { field: keyof Questionnaire, type: string }[] = [
+    { field: 'favoriteArtist', type: 'artist' },
+    { field: 'favoriteBook', type: 'book' },
+    { field: 'favoriteHobby', type: 'hobby' }
+  ];
+  
+  // Array fields
+  const arrayFields: (keyof Questionnaire)[] = ['sports', 'streamingServices'];
+  
+  // Category mappings
+  const categoryMap: Record<keyof Questionnaire, string> = {
+    freeTime: 'Leisure',
+    productiveTime: 'Work Habits',
+    favoriteColor: 'Personal Preferences',
+    movieGenre: 'Entertainment',
+    musicGenre: 'Entertainment',
+    favoriteArtist: 'Entertainment',
+    favoriteBook: 'Entertainment',
+    favoriteHobby: 'Hobbies',
+    favoritePlace: 'Travel',
+    sports: 'Sports',
+    foodPreference: 'Lifestyle',
+    travelPreference: 'Travel',
+    socialPreference: 'Social Preferences',
+    studyStyle: 'Academic',
+    personalityType: 'Personality',
+    dreamsGoals: 'Aspirations',
+    idealWeekend: 'Lifestyle',
+    favoriteSubject: 'Academic',
+    favoriteApp: 'Technology',
+    favoriteGame: 'Entertainment',
+    streamingServices: 'Entertainment',
+    podcastPreference: 'Entertainment',
+    techUsage: 'Technology',
+    petPreference: 'Lifestyle',
+    userId: '',
+    id: '',
+    createdAt: ''
+  };
+  
+  // STEP 1: Calculate objective score (exact matches)
+  let objectiveScore = 0;
+  let objectiveFieldsCount = 0;
+  
+  // Check objective fields (exact matching)
+  for (const field of objectiveFields) {
+    if (q1[field] && q2[field]) {
+      objectiveFieldsCount++;
+      if (q1[field] === q2[field]) {
+        objectiveScore++;
+        const category = categoryMap[field];
+        if (category && !matchedCategories.includes(category)) {
+          matchedCategories.push(category);
         }
       }
     }
-    
-    // Check array fields
-    for (const field of arrayFields) {
-      const array1 = q1[field];
-      const array2 = q2[field];
-      
-      if (array1 && array2 && array1.length > 0 && array2.length > 0) {
-        totalFields++;
-        
-        // Check for any common elements
-        const commonItems = array1.filter(item => array2.includes(item));
-        
-        if (commonItems.length > 0) {
-          matchingFields++;
-          const category = categoryMap[field];
-          if (category && !matchedCategories.includes(category)) {
-            matchedCategories.push(category);
-          }
-        }
-      }
-    }
-    
-    // Calculate compatibility score (percentage)
-    const score = totalFields > 0 ? Math.round((matchingFields / totalFields) * 100) : 0;
-    
-    return { score, categories: matchedCategories };
   }
   
+  // Check array fields (exact matching)
+  for (const field of arrayFields) {
+    const array1 = q1[field] as string[] | undefined;
+    const array2 = q2[field] as string[] | undefined;
+    
+    if (array1 && array2 && array1.length > 0 && array2.length > 0) {
+      objectiveFieldsCount++;
+      
+      // Check for any common elements
+      const commonItems = array1.filter(item => array2.includes(item));
+      
+      if (commonItems.length > 0) {
+        objectiveScore++;
+        const category = categoryMap[field];
+        if (category && !matchedCategories.includes(category)) {
+          matchedCategories.push(category);
+        }
+      }
+    }
+  }
+  
+  // Normalize objective score to percentage
+  const normalizedObjectiveScore = objectiveFieldsCount > 0 
+    ? (objectiveScore / objectiveFieldsCount) * 100 
+    : 0;
+  
+  // STEP 2: Calculate subjective score (based on popularity)
+  let subjectiveScore = 0;
+  let subjectiveFieldsCount = 0;
+  
+  // Check subjective fields (with popularity metrics)
+  for (const { field, type } of subjectiveFields) {
+    const value1 = q1[field] as string | undefined;
+    const value2 = q2[field] as string | undefined;
+    
+    if (value1 && value2) {
+      subjectiveFieldsCount++;
+      
+      if (value1 === value2) {
+        // Exact match gets full score
+        subjectiveScore++;
+        const category = categoryMap[field];
+        if (category && !matchedCategories.includes(category)) {
+          matchedCategories.push(category);
+        }
+      } else {
+        // Not a match, but check if both values have high popularity scores
+        // This implements the idea that two people liking popular things might have more in common
+        // even if they don't like the exact same things
+        const score1 = Array.from(this.popularityScores.values())
+          .find(ps => ps.entityName.toLowerCase() === value1.toLowerCase() && ps.entityType === type);
+          
+        const score2 = Array.from(this.popularityScores.values())
+          .find(ps => ps.entityName.toLowerCase() === value2.toLowerCase() && ps.entityType === type);
+        
+        if (score1 && score2 && score1.totalScore > 70 && score2.totalScore > 70) {
+          // If both like highly popular items, give partial credit (0.5)
+          subjectiveScore += 0.5;
+          const category = categoryMap[field];
+          if (category && !matchedCategories.includes(category)) {
+            matchedCategories.push(category);
+          }
+        }
+      }
+    }
+  }
+  
+  // Normalize subjective score to percentage
+  const normalizedSubjectiveScore = subjectiveFieldsCount > 0 
+    ? (subjectiveScore / subjectiveFieldsCount) * 100 
+    : 0;
+  
+  // STEP 3: Combine scores using the formula: C = 0.3*Objective + 0.7*Subjective
+  // This follows the new compatibility formula requested by the user
+  const combinedScore = (0.3 * normalizedObjectiveScore) + (0.7 * normalizedSubjectiveScore);
+  
+  // Round to whole number
+  const score = Math.round(combinedScore);
+  
+  return { score, categories: matchedCategories };
+}  
   // Data retention - clean up data older than one week
   async cleanupOldData(): Promise<void> {
     const oneWeekAgo = new Date();
@@ -555,6 +717,51 @@ export class PostgresStorage implements IStorage {
         await this.createTrend({ name: "HackathonClub", count: 25 });
         await this.createTrend({ name: "CodingChallenge", count: 20 });
         await this.createTrend({ name: "MusicSociety", count: 18 });
+      }
+      
+      // Check if popularity scores exist
+      const existingScores = await this.getPopularityScores();
+      if (existingScores.length === 0) {
+        // Add popularity scores for common preferences
+        await this.createPopularityScore({
+          entityName: "AR Rahman",
+          entityType: "artist",
+          searchVolume: 95,
+          socialMediaPresence: 90,
+          recentActivity: 85,
+          relevanceToVIT: 75,
+          totalScore: 88
+        });
+        
+        await this.createPopularityScore({
+          entityName: "Virat Kohli",
+          entityType: "athlete",
+          searchVolume: 98,
+          socialMediaPresence: 95,
+          recentActivity: 90,
+          relevanceToVIT: 70,
+          totalScore: 90
+        });
+        
+        await this.createPopularityScore({
+          entityName: "Harry Potter",
+          entityType: "book",
+          searchVolume: 85,
+          socialMediaPresence: 80,
+          recentActivity: 60,
+          relevanceToVIT: 65,
+          totalScore: 75
+        });
+        
+        await this.createPopularityScore({
+          entityName: "Photography",
+          entityType: "hobby",
+          searchVolume: 80,
+          socialMediaPresence: 85,
+          recentActivity: 70,
+          relevanceToVIT: 75,
+          totalScore: 78
+        });
       }
     } catch (error) {
       console.error("Error seeding default data:", error);
@@ -840,7 +1047,62 @@ export class PostgresStorage implements IStorage {
     }
   }
   
-  // Process matching
+  // Popularity Score methods
+  async getPopularityScores(entityType?: string): Promise<PopularityScore[]> {
+    let query = this.db.select().from(popularityScores);
+    
+    if (entityType) {
+      query = query.where(eq(popularityScores.entityType, entityType));
+    }
+    
+    const result = await query.orderBy(desc(popularityScores.totalScore));
+    return result;
+  }
+  
+  async getPopularityScore(id: number): Promise<PopularityScore | undefined> {
+    const result = await this.db
+      .select()
+      .from(popularityScores)
+      .where(eq(popularityScores.id, id));
+    return result[0];
+  }
+  
+  async getPopularityScoreByEntity(entityName: string, entityType: string): Promise<PopularityScore | undefined> {
+    const result = await this.db
+      .select()
+      .from(popularityScores)
+      .where(and(
+        eq(popularityScores.entityName, entityName),
+        eq(popularityScores.entityType, entityType)
+      ));
+    return result[0];
+  }
+  
+  async createPopularityScore(score: InsertPopularityScore): Promise<PopularityScore> {
+    // @ts-ignore - Works correctly at runtime
+    const result = await this.db
+      .insert(popularityScores)
+      .values({
+        ...score,
+        updatedAt: new Date()
+      })
+      .returning();
+    return result[0];
+  }
+  
+  async updatePopularityScore(id: number, scoreData: Partial<PopularityScore>): Promise<PopularityScore | undefined> {
+    const result = await this.db
+      .update(popularityScores)
+      .set({
+        ...scoreData,
+        updatedAt: new Date()
+      })
+      .where(eq(popularityScores.id, id))
+      .returning();
+    return result[0];
+  }
+  
+  // Updated processMatching method for PostgresStorage
   async processMatching(userId: number): Promise<Match[]> {
     const userQuestionnaire = await this.getQuestionnaire(userId);
     if (!userQuestionnaire) return [];
@@ -855,7 +1117,8 @@ export class PostgresStorage implements IStorage {
     
     for (const otherQ of allQuestionnaires) {
       // Calculate compatibility score and matching categories
-      const { score, categories } = this.calculateCompatibility(userQuestionnaire, otherQ);
+      // Use await with the async calculateCompatibility method
+      const { score, categories } = await this.calculateCompatibility(userQuestionnaire, otherQ);
       
       // Only create match if score exceeds threshold (80%)
       if (score >= 80) {
@@ -887,17 +1150,22 @@ export class PostgresStorage implements IStorage {
   }
   
   // Helper method to calculate compatibility between two users
-  private calculateCompatibility(q1: Questionnaire, q2: Questionnaire): { score: number, categories: string[] } {
+  // Updated calculateCompatibility method for PostgresStorage
+  private async calculateCompatibility(q1: Questionnaire, q2: Questionnaire): Promise<{ score: number, categories: string[] }> {
     const matchedCategories: string[] = [];
-    let totalFields = 0;
-    let matchingFields = 0;
     
-    // Compare each field
-    const fieldsToCompare: (keyof Questionnaire)[] = [
-      'freeTime', 'productiveTime', 'favoriteColor', 'movieGenre', 'musicGenre',
-      'favoriteHobby', 'foodPreference', 'travelPreference', 'socialPreference',
-      'studyStyle', 'personalityType', 'idealWeekend', 'favoriteSubject',
-      'favoriteApp', 'techUsage', 'petPreference'
+    // Objective fields (exact matching)
+    const objectiveFields: (keyof Questionnaire)[] = [
+      'productiveTime', 'favoriteColor', 'movieGenre', 'musicGenre',
+      'foodPreference', 'travelPreference', 'socialPreference',
+      'studyStyle', 'idealWeekend', 'techUsage', 'petPreference'
+    ];
+    
+    // Subjective fields (with popularity scoring)
+    const subjectiveFields: { field: keyof Questionnaire, type: string }[] = [
+      { field: 'favoriteArtist', type: 'artist' },
+      { field: 'favoriteBook', type: 'book' },
+      { field: 'favoriteHobby', type: 'hobby' }
     ];
     
     // Array fields
@@ -934,12 +1202,16 @@ export class PostgresStorage implements IStorage {
       createdAt: ''
     };
     
-    // Check regular fields
-    for (const field of fieldsToCompare) {
+    // STEP 1: Calculate objective score (exact matches)
+    let objectiveScore = 0;
+    let objectiveFieldsCount = 0;
+    
+    // Check objective fields (exact matching)
+    for (const field of objectiveFields) {
       if (q1[field] && q2[field]) {
-        totalFields++;
+        objectiveFieldsCount++;
         if (q1[field] === q2[field]) {
-          matchingFields++;
+          objectiveScore++;
           const category = categoryMap[field];
           if (category && !matchedCategories.includes(category)) {
             matchedCategories.push(category);
@@ -948,19 +1220,19 @@ export class PostgresStorage implements IStorage {
       }
     }
     
-    // Check array fields
+    // Check array fields (exact matching)
     for (const field of arrayFields) {
-      const array1 = q1[field];
-      const array2 = q2[field];
+      const array1 = q1[field] as string[] | undefined;
+      const array2 = q2[field] as string[] | undefined;
       
       if (array1 && array2 && array1.length > 0 && array2.length > 0) {
-        totalFields++;
+        objectiveFieldsCount++;
         
         // Check for any common elements
         const commonItems = array1.filter(item => array2.includes(item));
         
         if (commonItems.length > 0) {
-          matchingFields++;
+          objectiveScore++;
           const category = categoryMap[field];
           if (category && !matchedCategories.includes(category)) {
             matchedCategories.push(category);
@@ -969,12 +1241,73 @@ export class PostgresStorage implements IStorage {
       }
     }
     
-    // Calculate compatibility score (percentage)
-    const score = totalFields > 0 ? Math.round((matchingFields / totalFields) * 100) : 0;
+    // Normalize objective score to percentage
+    const normalizedObjectiveScore = objectiveFieldsCount > 0 
+      ? (objectiveScore / objectiveFieldsCount) * 100 
+      : 0;
+    
+    // STEP 2: Calculate subjective score (based on popularity)
+    let subjectiveScore = 0;
+    let subjectiveFieldsCount = 0;
+    
+    // Fetch all popularity scores once to avoid multiple DB queries
+    const allPopularityScores = await this.getPopularityScores();
+    
+    // Check subjective fields (with popularity metrics)
+    for (const { field, type } of subjectiveFields) {
+      const value1 = q1[field] as string | undefined;
+      const value2 = q2[field] as string | undefined;
+      
+      if (value1 && value2) {
+        subjectiveFieldsCount++;
+        
+        if (value1 === value2) {
+          // Exact match gets full score
+          subjectiveScore++;
+          const category = categoryMap[field];
+          if (category && !matchedCategories.includes(category)) {
+            matchedCategories.push(category);
+          }
+        } else {
+          // Not a match, but check if both values have high popularity scores
+          // This implements the idea that two people liking popular things might have more in common
+          // even if they don't like the exact same things
+          const score1 = allPopularityScores.find(ps => 
+            ps.entityName.toLowerCase() === value1.toLowerCase() && 
+            ps.entityType === type
+          );
+            
+          const score2 = allPopularityScores.find(ps => 
+            ps.entityName.toLowerCase() === value2.toLowerCase() && 
+            ps.entityType === type
+          );
+          
+          if (score1 && score2 && score1.totalScore > 70 && score2.totalScore > 70) {
+            // If both like highly popular items, give partial credit (0.5)
+            subjectiveScore += 0.5;
+            const category = categoryMap[field];
+            if (category && !matchedCategories.includes(category)) {
+              matchedCategories.push(category);
+            }
+          }
+        }
+      }
+    }
+    
+    // Normalize subjective score to percentage
+    const normalizedSubjectiveScore = subjectiveFieldsCount > 0 
+      ? (subjectiveScore / subjectiveFieldsCount) * 100 
+      : 0;
+    
+    // STEP 3: Combine scores using the formula: C = 0.3*Objective + 0.7*Subjective
+    // This follows the new compatibility formula requested by the user
+    const combinedScore = (0.3 * normalizedObjectiveScore) + (0.7 * normalizedSubjectiveScore);
+    
+    // Round to whole number
+    const score = Math.round(combinedScore);
     
     return { score, categories: matchedCategories };
-  }
-  
+  }  
   // Data retention - clean up data older than one week
   async cleanupOldData(): Promise<void> {
     try {
